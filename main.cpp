@@ -3,7 +3,36 @@
 #include <string>
 #include <sstream>
 
-struct President {
+struct President;
+struct ListNode;
+
+std::string* split(std::string s, std::string delimiter);
+void insertData(ListNode*& rootListNode, President* p);
+void parseData(ListNode*& rootListNode, char* filePath);
+void printData(ListNode* rootListNode);
+
+
+int main(int argc, char* argv[]) {
+
+    if (argc > 2 || argc == 1)
+    {
+        std::cout << "Correct usage: main <data-file-path>" << std::endl;
+        exit(0);
+    }
+
+    char* filePath = argv[1];
+
+    ListNode* rootListNode = nullptr;
+    parseData(rootListNode, filePath);
+    printData(rootListNode);
+
+    delete rootListNode;
+
+    return 0;
+}
+
+struct President
+{
     std::string firstName;
     std::string lastName;
     int startYear;
@@ -17,14 +46,14 @@ struct President {
     }
 };
 
-struct ListNode {
+struct ListNode
+{
     President* p = nullptr;
     ListNode* next = nullptr;
 };
 
-ListNode *rootNode = nullptr;
-
-std::string* split(std::string s, std::string delimiter) {
+std::string* split(std::string s, std::string delimiter)
+{
 
     int pos_start = 0;
     int pos_end;
@@ -42,35 +71,29 @@ std::string* split(std::string s, std::string delimiter) {
 
         buffer[idx] = token;
         idx++;
-
-        //cout << idx << endl;
-
     }
 
     token = s.substr(pos_start, pos_end - pos_start);
     pos_start = pos_end + delim_len;
     buffer[idx] = token;
 
-    //cout << buffer[0] << endl;
-
     return buffer;
-
 }
 
-void insertData(President* p)
+void insertData(ListNode*& rootListNode, President* p)
 {
     // ListNode newListNode = new ListNode{p, nullptr}; - The code below is same, but this approach uses aggregate initialization
     ListNode* newListNode = new ListNode;
     newListNode->p = p;
     newListNode->next = nullptr;
 
-    if (rootNode == nullptr)
+    if (rootListNode == nullptr)
     {
-        rootNode = newListNode;
+        rootListNode = newListNode;
         return;
     }
 
-    ListNode *currNode = rootNode;
+    ListNode *currNode = rootListNode;
     while (currNode->next != nullptr)
     {
         currNode = currNode->next;
@@ -79,7 +102,7 @@ void insertData(President* p)
     currNode->next = newListNode;
 }
 
-void parseData(char* filePath)
+void parseData(ListNode*& rootListNode, char* filePath)
 {
     std::ifstream file(filePath);
     if (!file.is_open())
@@ -103,14 +126,13 @@ void parseData(char* filePath)
 
         President* p = new President{firstName, lastName, startYear, endYear, politicalParty};
 
-        insertData(p);
+        insertData(rootListNode, p);
     }
 }
 
-
-void printData()
+void printData(ListNode* rootListNode)
 {
-    ListNode* currNode = rootNode;
+    ListNode* currNode = rootListNode;
     while (currNode->next != nullptr)
     {
         std::cout << *currNode->p << std::endl;
@@ -118,21 +140,4 @@ void printData()
     }
 
     std::cout << *currNode->p << std::endl;
-}
-
-int main(int argc, char* argv[]) {
-    if (argc > 2 || argc == 1)
-    {
-        std::cout << "Correct usage: main <data-file-path>" << std::endl;
-        exit(0);
-    }
-
-    char* filePath = argv[1];
-
-    parseData(filePath);
-    printData();
-
-    delete rootNode;
-
-    return 0;
 }
